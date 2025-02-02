@@ -12,18 +12,15 @@ pipeline {
         stage('checkout') {
             steps {
                  script{
-                        dir("terraform")
-                        {
-                            git "https://github.com/Greeshma-Babu-tech/Jenkins-Terraform.git"
-                        }
+                        git "https://github.com/Greeshma-Babu-tech/Jenkins-Terraform.git"
                     }
                 }
             }
         stage('Plan') {
             steps {
-                sh 'pwd;cd terraform/ ; terraform init'
-                sh "pwd;cd terraform/ ; terraform plan -out tfplan"
-                sh 'pwd;cd terraform/ ; terraform show -no-color tfplan > tfplan.txt'
+                sh 'pwd; terraform init'
+                sh "pwd; terraform plan -out tfplan"
+                sh 'pwd; terraform show -no-color tfplan > tfplan.txt'
             }
         }
         stage('Approval') {
@@ -35,7 +32,7 @@ pipeline {
 
            steps {
                script {
-                    def plan = readFile 'terraform/tfplan.txt'
+                    def plan = readFile 'tfplan.txt'
                     input message: "Do you want to apply the plan?",
                     parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
                }
@@ -44,7 +41,7 @@ pipeline {
 
         stage('Apply') {
             steps {
-                sh "pwd;cd terraform/ ; terraform apply -input=false tfplan"
+                sh "pwd; terraform apply -input=false tfplan"
             }
         }
     }
